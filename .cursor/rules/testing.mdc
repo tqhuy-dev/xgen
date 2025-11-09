@@ -1,0 +1,167 @@
+---
+alwaysApply: true
+---
+
+# Testing Rules for Go Project
+
+## Mandatory Requirements
+
+### 1. Unit Tests for Every Function
+- **Every exported function MUST have corresponding unit tests**
+- Test file naming convention: `<filename>_test.go`
+- Test function naming convention: `Test<FunctionName>`
+- Place test files in the same package as the code being tested
+
+### 2. Test Table Pattern (Table-Driven Tests)
+- **All unit tests MUST use table-driven test pattern**
+- Define test cases in a slice of structs containing:
+  - `name`: descriptive test case name
+  - `input`: input parameters
+  - `expected`: expected output/result
+  - `expectError`: boolean flag for error cases (if applicable)
+
+Example structure:
+```go
+func TestFunctionName(t *testing.T) {
+    tests := []struct {
+        name        string
+        input       InputType
+        expected    ExpectedType
+        expectError bool
+    }{
+        {
+            name:        "description of test case",
+            input:       /* input values */,
+            expected:    /* expected values */,
+            expectError: false,
+        },
+        // ... more test cases
+    }
+    
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Test implementation
+        })
+    }
+}
+```
+
+### 3. Comments and Documentation
+- **Every test function MUST have a comment** explaining what it tests
+- **Every test case in the table MUST have a descriptive name**
+- Add inline comments for complex assertions or setup logic
+- Document any test dependencies or prerequisites
+
+### 4. Test Coverage Requirements
+- Cover happy path scenarios
+- Cover edge cases (empty inputs, nil values, zero values)
+- Cover error conditions and boundary conditions
+- Test concurrent behavior if the function is meant to be used concurrently
+
+### 5. Test Structure
+Each test should follow the AAA pattern:
+- **Arrange**: Set up test data and dependencies
+- **Act**: Execute the function being tested
+- **Assert**: Verify the results
+
+### 6. Error Testing
+- For functions that return errors, test both success and failure cases
+- Verify error messages are meaningful
+- Use `t.Errorf()` or `t.Fatalf()` with clear failure messages
+
+### 7. Test Isolation
+- Tests MUST be independent and idempotent
+- Tests should not rely on execution order
+- Clean up resources after each test
+- Use `t.Cleanup()` for cleanup operations when needed
+
+## Example Template
+
+```go
+// TestAdd tests the Add function with various input combinations
+// including positive numbers, negative numbers, and zero values
+func TestAdd(t *testing.T) {
+    tests := []struct {
+        name     string
+        a        int
+        b        int
+        expected int
+    }{
+        {
+            name:     "positive numbers",
+            a:        5,
+            b:        3,
+            expected: 8,
+        },
+        {
+            name:     "negative numbers",
+            a:        -5,
+            b:        -3,
+            expected: -8,
+        },
+        {
+            name:     "mixed positive and negative",
+            a:        5,
+            b:        -3,
+            expected: 2,
+        },
+        {
+            name:     "zero values",
+            a:        0,
+            b:        0,
+            expected: 0,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Act: execute the function
+            result := Add(tt.a, tt.b)
+            
+            // Assert: verify the result
+            if result != tt.expected {
+                t.Errorf("Add(%d, %d) = %d; expected %d", 
+                    tt.a, tt.b, result, tt.expected)
+            }
+        })
+    }
+}
+```
+
+## Additional Best Practices
+
+### Helper Functions
+- Use test helper functions for common setup/teardown
+- Mark helpers with `t.Helper()` to improve error reporting
+
+### Subtests
+- Always use `t.Run()` for each test case in table-driven tests
+- This enables running individual test cases and better error reporting
+
+### Assertions
+- Provide clear, descriptive error messages in assertions
+- Include actual and expected values in error messages
+- Use formatted strings to show what went wrong
+
+### Test Data
+- Keep test data close to the test that uses it
+- Use meaningful test data that represents real-world scenarios
+- Avoid magic numbers; use named constants when appropriate
+
+## Running Tests
+```bash
+# Run all tests
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run tests with verbose output
+go test -v ./...
+
+# Run specific test
+go test -run TestFunctionName
+
+# Run specific test case
+go test -run TestFunctionName/test_case_name
+```
