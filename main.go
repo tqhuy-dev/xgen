@@ -7,16 +7,40 @@ import (
 )
 
 func main() {
-	type Data struct {
-		Name string
-		Age  int
+	nodeA := &dsa.NodeGraph[int, string]{
+		Data:     1,
+		Relation: "relation1",
 	}
-	data := dsa.HeapList[Data]{
-		{Data: Data{Name: "tqhuy", Age: 20}, Point: 20},
-		{Data: Data{Name: "tqhuy", Age: 50}, Point: 50},
-		{Data: Data{Name: "tqhuy", Age: 60}, Point: 60},
-		{Data: Data{Name: "tqhuy", Age: 10}, Point: 10},
-		{Data: Data{Name: "tqhuy", Age: 30}, Point: 30},
+	nodeB := &dsa.NodeGraph[int, string]{
+		Data:     2,
+		Relation: "relation2",
 	}
-	fmt.Println(dsa.TopMaxPoint(data, 3))
+	nodeC := &dsa.NodeGraph[int, string]{
+		Data:     3,
+		Relation: "relation3",
+	}
+	nodeD := &dsa.NodeGraph[int, string]{
+		Data:     4,
+		Relation: "relation3",
+	}
+	nodeE := &dsa.NodeGraph[int, string]{
+		Data:     5,
+		Relation: "relation3",
+	}
+	nodeF := &dsa.NodeGraph[int, string]{
+		Data:     6,
+		Relation: "relation3",
+	}
+	nodeG := &dsa.NodeGraph[int, string]{
+		Data: 7,
+	}
+	nodeA.AddNextNode(nodeB)
+	nodeA.AddNextNode(nodeC)
+	nodeC.AddNextNode(nodeD)
+	nodeC.AddNextNode(nodeE)
+	nodeE.AddNextNode(nodeF)
+	nodeB.AddNextNode(nodeG)
+	nodeA.TraverseDFS(func(node *dsa.NodeGraph[int, string]) {
+		fmt.Println(node.Data)
+	})
 }
