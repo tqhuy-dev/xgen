@@ -85,24 +85,24 @@ func (n *NodeGraph[T, K]) GetNextNodes(handleNode func(node *NodeGraph[T, K])) {
 
 // TraverseDFS performs a depth-first traversal with cycle detection
 // Calls handleNode for each visited node exactly once
-func (n *NodeGraph[T, K]) TraverseDFS(handleNode func(node *NodeGraph[T, K])) {
+func (n *NodeGraph[T, K]) TraverseDFS(handleNode func(node *NodeGraph[T, K], level int)) {
 	if n == nil || handleNode == nil {
 		return
 	}
 	visited := make(map[*NodeGraph[T, K]]bool)
-	n.traverseDFSHelper(handleNode, visited)
+	n.traverseDFSHelper(handleNode, visited, 1)
 }
 
 // traverseDFSHelper is a helper function for DFS traversal with cycle detection
-func (n *NodeGraph[T, K]) traverseDFSHelper(handleNode func(node *NodeGraph[T, K]), visited map[*NodeGraph[T, K]]bool) {
+func (n *NodeGraph[T, K]) traverseDFSHelper(handleNode func(node *NodeGraph[T, K], level int), visited map[*NodeGraph[T, K]]bool, level int) {
 	if visited[n] {
 		return
 	}
 	visited[n] = true
-	handleNode(n)
+	handleNode(n, level)
 	for _, child := range n.NextNodes {
 		if child != nil {
-			child.traverseDFSHelper(handleNode, visited)
+			child.traverseDFSHelper(handleNode, visited, level+1)
 		}
 	}
 }

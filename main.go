@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/tqhuy-dev/xgen/dsa"
 )
@@ -34,13 +35,18 @@ func main() {
 	nodeG := &dsa.NodeGraph[int, string]{
 		Data: 7,
 	}
+	nodeI := &dsa.NodeGraph[int, string]{
+		Data: 8,
+	}
 	nodeA.AddNextNode(nodeB)
 	nodeA.AddNextNode(nodeC)
 	nodeC.AddNextNode(nodeD)
 	nodeC.AddNextNode(nodeE)
 	nodeE.AddNextNode(nodeF)
 	nodeB.AddNextNode(nodeG)
-	nodeA.TraverseDFS(func(node *dsa.NodeGraph[int, string]) {
+	nodeD.AddNextNode(nodeI)
+	nodeA.TraverseDFS(func(node *dsa.NodeGraph[int, string], level int) {
+		fmt.Print(strings.Repeat(" ", level))
 		fmt.Println(node.Data)
 	})
 }

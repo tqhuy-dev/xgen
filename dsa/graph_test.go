@@ -219,7 +219,7 @@ func TestNodeGraph_RemoveNextNode_NotFound(t *testing.T) {
 			root := NewNodeGraph(1, "root")
 			child1 := NewNodeGraph(2, "child1")
 			root.AddNextNode(child1)
-			
+
 			otherNode := NewNodeGraph(4, "other")
 
 			// Act
@@ -401,8 +401,8 @@ func TestNodeGraph_IsLeaf(t *testing.T) {
 // which removes all child nodes
 func TestNodeGraph_ClearNextNodes(t *testing.T) {
 	tests := []struct {
-		name               string
-		initialChildCount  int
+		name              string
+		initialChildCount int
 	}{
 		{
 			name:              "clear empty node",
@@ -541,9 +541,10 @@ func TestNodeGraph_GetNextNodes_NilHandling(t *testing.T) {
 // which performs depth-first traversal with cycle detection
 func TestNodeGraph_TraverseDFS(t *testing.T) {
 	tests := []struct {
-		name          string
-		buildGraph    func() *NodeGraph[int, string]
-		expectedCount int
+		name             string
+		buildGraph       func() *NodeGraph[int, string]
+		expectedCount    int
+		expectedMaxLevel int
 	}{
 		{
 			name: "simple tree without cycles",
@@ -555,7 +556,8 @@ func TestNodeGraph_TraverseDFS(t *testing.T) {
 				root.AddNextNode(child2)
 				return root
 			},
-			expectedCount: 3,
+			expectedCount:    3,
+			expectedMaxLevel: 2,
 		},
 		{
 			name: "graph with cycle",
@@ -566,14 +568,16 @@ func TestNodeGraph_TraverseDFS(t *testing.T) {
 				child.AddNextNode(root) // Creates cycle
 				return root
 			},
-			expectedCount: 2, // Should visit each node only once
+			expectedCount:    2, // Should visit each node only once
+			expectedMaxLevel: 2,
 		},
 		{
 			name: "single node",
 			buildGraph: func() *NodeGraph[int, string] {
 				return NewNodeGraph(1, "single")
 			},
-			expectedCount: 1,
+			expectedCount:    1,
+			expectedMaxLevel: 1,
 		},
 	}
 
@@ -582,15 +586,21 @@ func TestNodeGraph_TraverseDFS(t *testing.T) {
 			// Arrange
 			root := tt.buildGraph()
 			visited := make(map[int]bool)
-
+			maxLevel := 0
 			// Act
-			root.TraverseDFS(func(node *NodeGraph[int, string]) {
+			root.TraverseDFS(func(node *NodeGraph[int, string], level int) {
 				visited[node.Data] = true
+				if level > maxLevel {
+					maxLevel = level
+				}
 			})
 
 			// Assert
 			if len(visited) != tt.expectedCount {
 				t.Errorf("TraverseDFS() visited %d nodes; expected %d", len(visited), tt.expectedCount)
+			}
+			if maxLevel != tt.expectedMaxLevel {
+				t.Errorf("TraverseDFS() max level = %d; expected %d", maxLevel, tt.expectedMaxLevel)
 			}
 		})
 	}
@@ -993,7 +1003,7 @@ func TestNodeGraph_ComplexScenarios(t *testing.T) {
 
 		// Act: Multiple traversals
 		var dfsResult, bfsResult []int
-		root.TraverseDFS(func(node *NodeGraph[int, string]) {
+		root.TraverseDFS(func(node *NodeGraph[int, string], level int) {
 			dfsResult = append(dfsResult, node.Data)
 		})
 		root.TraverseBFS(func(node *NodeGraph[int, string]) {
@@ -1013,4 +1023,3 @@ func TestNodeGraph_ComplexScenarios(t *testing.T) {
 		}
 	})
 }
-
