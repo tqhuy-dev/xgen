@@ -1,0 +1,20 @@
+syntax = "proto3";
+package pb;
+
+message StringList {
+  repeated string values = 1;
+}
+message ToggleConfig {
+  string feature_key = 1;
+  bool is_apply_all = 2;
+  float ratio = 3;
+  map<string , StringList> field_enable = 4;
+}
+
+message UpdateToggleRequest {
+  repeated ToggleConfig config = 1;
+}
+
+message UpdateToggleResponse {
+  
+}
