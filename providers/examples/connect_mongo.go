@@ -1,4 +1,4 @@
-package main
+package examples
 
 import (
 	"time"
@@ -6,7 +6,7 @@ import (
 	"github.com/tqhuy-dev/xgen/providers/mongo_db"
 )
 
-func main() {
+func RunMongoExample() {
 	mongoClient, err := mongo_db.NewMongoDB(mongo_db.Option{
 		Host:        "localhost",
 		Port:        27018,
